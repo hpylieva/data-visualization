@@ -1,0 +1,153 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+To review all the cyrrilic text: File -> Reopen with Encoding...(UTF-8)
+
+```{r}
+df <- read.csv("electricity.csv", stringsAsFactors = T)
+head(df)
+```
+
+```{r}
+ggplot(data = df)
+```
+```{r}
+# ggplot2 is built on graphics grammar
+# aes = aestetics = atributes of geometries
+# до естетик в першу чергу належить положення, в aes х - це положення
+
+ggplot(df, aes(x = consumption))
+```
+```{r}
+# now we add geometries
+ggplot(df, aes(x = consumption))+
+  geom_histogram()
+
+```
+
+
+```{r}
+# other way to do the same - aes are placed in geometry
+ggplot(df) + geom_histogram(aes(x = consumption))
+  
+```
+
+```{r}
+# a cse when we want to have 2 geometries
+ggplot(df) + geom_histogram(aes(x = consumption)) + geom_rug(aes(x = consumption))
+# OR
+ggplot(df, aes(x = consumption)) + geom_histogram() + geom_rug()
+```
+As we have outliers, we need to exclude them.
+
+```{r}
+df <- df[df$consumption > 0,]
+ggplot(df, aes(x=consumption)) + 
+  geom_histogram(binwidth = 300, fill= "darkcyan")
+```
+
+```{r}
+# here we change the scale
+# scale_x_continuous(breaks = seq(10000, 24000, 2000)) = де буде розташований графік
+# limits= c(10000, 20000) = limits of datarange
+ggplot(df, aes(x=consumption)) + 
+  geom_histogram(binwidth = 500, fill= "darkcyan") +
+  scale_x_continuous(breaks = seq(10000, 24000, 2000), limits= c(10000, 20000)) +
+  scale_y_continuous(breaks = seq(0, 900, 100))
+```
+
+```{r}
+# we can add categorical data as fill
+# position of how the categories are places in in geom_histogram
+ggplot(df, aes(x=consumption, fill = season)) + 
+  geom_histogram(binwidth = 500) +
+  scale_x_continuous(breaks = seq(10000, 24000, 2000)) +
+  scale_y_continuous(breaks = seq(0, 900, 100))
+```
+```{r}
+# adding facet through facet_wrap(~season)
+ggplot(df, aes(x=consumption, fill = season)) + 
+  geom_histogram(binwidth = 500, position = ) +
+  scale_x_continuous(breaks = seq(10000, 24000, 2000)) +
+  scale_y_continuous(breaks = seq(0, 900, 100)) +
+  facet_wrap(~season)
+```
+```{r}
+# we an edo faced from pairs of categorical veriables
+
+ggplot(df, aes(x=consumption, fill = season)) + 
+  geom_histogram(binwidth = 500, position = ) +
+  scale_x_continuous(breaks = seq(10000, 24000, 2000)) +
+  scale_y_continuous(breaks = seq(0, 900, 100)) +
+  facet_wrap(month~season)
+```
+```{r}
+# working with 2 data sets
+ggplot(df, aes(x=consumption)) + 
+  geom_histogram(data = df[, 1:9],
+                 binwidth = 500, fill= 'gray', alpha = 0.8) +
+  geom_histogram(binwidth = 500, fill='darkcyan') +
+  scale_x_continuous(breaks = seq(10000, 24000, 2000)) +
+  scale_y_continuous(breaks = seq(0, 900, 100)) +
+  facet_wrap(~season)+
+  theme_dark()
+```
+
+```{r}
+ggplot(df, aes(x=consumption, fill = season)) + 
+  geom_histogram(binwidth = 500) +
+  scale_x_continuous(breaks = seq(10000, 24000, 2000)) +
+  scale_y_continuous(breaks = seq(0, 900, 100)) +
+  scale_fill_brewer(type = 'seq') 
+```
+
+
+```{r}
+ggplot(df, aes(x = as.Date(datetime), y = consumption))+geom_line()
+
+ggplot(df, aes(x = as.Date(datetime), y = consumption))+
+  geom_point(color='darkcyan', alpha = 0.5)
+
+ggplot(df, aes(x = as.Date(datetime), y = consumption))+
+  geom_point(color='darkcyan', alpha = 0.5, position = 'jitter')
+
+ggplot(df, aes(x = as.Date(datetime), y = consumption, color = consumption))+
+  geom_point( alpha = 0.5, position = 'jitter') 
+
+ggplot(df, aes(x = as.Date(datetime), y = consumption, color = hour))+
+  geom_point( alpha = 0.5, position = 'jitter') +
+  scale_color_distiller(type = 'div')
+```
+
+```{r}
+ggplot(df, aes(x = hour, y = consumption)) +
+  geom_point(alpha = 0.8)
+
+ggplot(df, aes(x = factor(hour, ordered = T, levels= c(0:23)), y = consumption)) +
+  geom_boxplot()
+```
+
+```{r}
+# making datetime a valid datetime format(was factor or string)
+df$datetime <- as.POSIXct(df$datetime)
+
+# making beutiful graph
+ggplot(df)+
+  geom_tile(aes(x = as.Date(df$datetime), 
+                y = hour, fill = consumption)) +
+  scale_x_date(name = 'date', date_breaks = '1 month', date_labels = '%m') +
+  scale_fill_distiller(direction = -1, type ='div')+
+  theme_minimal()
+```
+
