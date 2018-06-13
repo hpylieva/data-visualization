@@ -56,6 +56,7 @@ ggsave("rate_2016.png", plot = last_plot(), width = 15, height = 10, units = "in
 
 ggplot(data = df) + 
   geom_hline(yintercept = 0, size = 0.3, color = '#3A3F4A') +
+  geom_vline(aes(xintercept=vl), data=vline.dat) +
   geom_area(aes(x = year, y = rate,  alpha = 0.4)) +
   geom_line(aes(x = year, y = rate)) +
   facet_wrap(~region)+
@@ -101,8 +102,9 @@ ggplot() +
   scale_x_continuous(breaks = seq(1990, 2016, 5), labels = c("'90", "'95", "'00", "'05", "'10", "'15"), 
                      minor_breaks = NULL)+
   scale_y_continuous(breaks = seq(-15, 5, 10), minor_breaks = NULL)+
-  labs(title = str_wrap("Порівняння динаміки приросту/скорочення населення в Донецькій області в 1990 - 2013 роках з іншими областями України", 70),
-       subtitle = str_wrap("Донецька область зображена червоним. Приріст обчислено на 1000 осіб наявного населення.", 80),
+  labs(title = str_wrap("Порівняння динаміки приросту/скорочення населення в Донецькій області в 1990 - 2016 роках з іншими областями України", 70),
+       subtitle = str_wrap("Приріст обчислено на 1000 осіб наявного населення. Донецька область зображена червоним. 
+                           Дані для Донецької області після 2013 року відсутні.", 100),
        caption = "Дані: Державна служба статистики України")+
   theme(
     rect = element_rect(fill = '#EAEAEA'),
@@ -120,3 +122,4 @@ ggplot() +
   )
 
 ggsave("rates_compare_with_native_region.png", plot = last_plot(), width = 15, height = 10, units = "in")
+
